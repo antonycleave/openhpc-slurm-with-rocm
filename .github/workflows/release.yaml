@@ -1,0 +1,51 @@
+on:
+  release:
+    types: [created]
+name: Handle Release
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - amd64
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        file: Dockerfile
+        push: false
+        load: true
+        tags: slurmbuild:notused
+        platforms: "linux/${{ matrix.arch }}"
+        cache-from: type=gha
+
+    - name: extract rpms
+      uses: addnab/docker-run-action@v3
+      with:
+        image: slurmbuild:notused
+        options: "-v ${{ github.workspace }}:/host"
+        run: "bash -c 'cp /root/rpmbuild/RPMS/*/*.rpm /host'"
+
+    - name: debug pwd
+      run: ls -R
+
+    - name: tar rpms
+      run: "tar jcf slurm-${{ github.event.release.tag_name }}-${{ matrix.arch }}.tar.bz2 *.rpm"
+      
+    - name: Upload the artifacts
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: '*.tar.*'

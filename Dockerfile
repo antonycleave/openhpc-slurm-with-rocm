@@ -3,8 +3,9 @@ FROM  docker.io/library/rockylinux:$releasetag
 ARG ROCMVERS=6.2.2
 ARG OhpcMajorVers=3
 ARG OhpcUpdateDir=updates # this can be changed to a SPECIFIC update as required e.g. update.3.1 the default updates (plural) is a symlink to the current release
-
+ARG SLURM_VERSION=23.11.10
 WORKDIR /root/rpmbuild
+COPY ./rpmbuild/./ /root/rpmbuild
 ######## add AMD ROCM repo using correct version
 COPY <<-EOF /etc/yum.repos.d/rocm.repo
 [ROCm-${ROCMVERS}]
@@ -34,10 +35,10 @@ gpgkey = https://github.com/openhpc/ohpc/raw/refs/heads/${OhpcMajorVers}.x/compo
 name = OpenHPC-3 - Updates
 
 OHPCREPOEOF
-RUN cat /etc/yum.repos.d/OpenHPC.repo && \
+RUN curl -sSf -o /root/rpmbuild/SOURCES/slurm-${SLURM_VERSION}.tar.bz2 https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
     dnf -y install epel-release && \
     /usr/bin/crb enable && \
     dnf -y install @Development\ Tools  dbus-devel freeipmi-devel gtk2-devel http-parser-devel json-c-devel libcurl-devel libjwt-devel libyaml-devel mariadb-devel munge-devel numactl-devel pam-devel readline-devel lua-devel perl-ExtUtils-MakeMaker ohpc-buildroot hwloc-ohpc pmix-ohpc rocm-smi-lib bzip2
-COPY ./rpmbuild/./ /root/rpmbuild
+
 RUN source /etc/profile.d/lmod.sh && \
     rpmbuild -ba /root/rpmbuild/SPECS/slurm.spec
