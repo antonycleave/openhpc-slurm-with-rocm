@@ -40,7 +40,4 @@ RUN cat /etc/yum.repos.d/OpenHPC.repo && \
     dnf -y install @Development\ Tools  dbus-devel freeipmi-devel gtk2-devel http-parser-devel json-c-devel libcurl-devel libjwt-devel libyaml-devel mariadb-devel munge-devel numactl-devel pam-devel readline-devel lua-devel perl-ExtUtils-MakeMaker ohpc-buildroot hwloc-ohpc pmix-ohpc rocm-smi-lib bzip2
 COPY ./rpmbuild/./ /root/rpmbuild
 RUN source /etc/profile.d/lmod.sh && \
-    rpmbuild -ba /root/rpmbuild/SPECS/slurm.spec && \
-    cd /root/rpmbuild/RPMS/x86_64/ && \
-    tar -jcf /home/rocky/slurm-rpms.tar.bz2  *.rpm && \
-    chown rocky:rocky /home/rocky/slurm-rpms.tar.bz2 
+    rpmbuild -ba /root/rpmbuild/SPECS/slurm.spec
