@@ -16,11 +16,7 @@
 %global _with_slurmrestd 1
 %global _with_multiple_slurmd 1
 %global _with_freeipmi 1
-%global _with_rsmi /opt/rocm/lib
-
-%if 0%{?rhel} || 0%{?openEuler}
-%global _with_yaml 1
-%endif
+%global _with_rsmi 1
 
 %if 0%{?rhel}
 %global _with_jwt 1
@@ -78,6 +74,7 @@ Patch0: slurm.conf.example.patch
 # --with jwt		%_with_jwt 1		require jwt support
 # --with freeipmi	%_with_freeipmi 1	require freeipmi support
 # --with selinux	%_with_selinux 1	build with selinux support
+
 #  Options that are off by default (enable with --with <opt>)
 %bcond_with cray
 %bcond_with cray_network
@@ -148,6 +145,7 @@ BuildRequires: mariadb-devel >= 5.0.0
 %if %{with rsmi}
 BuildRequires: rocm-smi-lib
 %endif
+
 %if %{with cray}
 BuildRequires: cray-libalpscomm_cn-devel
 BuildRequires: cray-libalpscomm_sn-devel
@@ -456,6 +454,7 @@ module load hwloc
 	%{?_with_nvml} \
 	--with-hwloc=%{OHPC_LIBS}/hwloc \
 	%{?_with_cflags} || { cat config.log && exit 1; }
+
 make %{?_smp_mflags}
 
 %install
