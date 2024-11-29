@@ -33,6 +33,8 @@
 %else
 %{!?dist: %global dist 27.ohpc}
 %endif
+#quick bodge
+%global dist 291.ohpc
 %{!?PROJ_DELIM: %global PROJ_DELIM -ohpc}
 
 # Update package docs location to include version info (to allow
