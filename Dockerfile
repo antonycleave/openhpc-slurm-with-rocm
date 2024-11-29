@@ -1,7 +1,8 @@
-ARG releasetag=9
+ARG releasetag=8
 FROM  docker.io/library/rockylinux:$releasetag
-ARG ROCMVERS=6.2.2
-ARG OhpcMajorVers=3
+ARG ROCMVERS=6.2.4
+ARG OhpcDistroVers=8
+ARG OhpcMajorVers=2
 ARG OhpcUpdateDir=updates # this can be changed to a SPECIFIC update as required e.g. update.3.1 the default updates (plural) is a symlink to the current release
 ARG SLURM_VERSION=23.11.10
 WORKDIR /root/rpmbuild
@@ -10,7 +11,7 @@ COPY ./rpmbuild/./ /root/rpmbuild
 COPY <<-EOF /etc/yum.repos.d/rocm.repo
 [ROCm-${ROCMVERS}]
 name=ROCm-${ROCMVERS}
-baseurl=https://repo.radeon.com/rocm/el9/${ROCMVERS}/main
+baseurl=https://repo.radeon.com/rocm/el${OhpcDistroVers}/${ROCMVERS}/main
 enabled=1
 priority=50
 gpgcheck=1
@@ -21,18 +22,18 @@ EOF
 COPY <<-OHPCREPOEOF /etc/yum.repos.d/OpenHPC.repo
 [OpenHPC]
 async = 1
-baseurl = https://repos.openhpc.community/OpenHPC/${OhpcMajorVers}/EL_9
+baseurl = https://repos.openhpc.community/OpenHPC/${OhpcMajorVers}/EL_${OhpcDistroVers}
 gpgcheck = 1
-gpgkey = https://github.com/openhpc/ohpc/raw/refs/heads/${OhpcMajorVers}.x/components/admin/ohpc-release/SOURCES/RPM-GPG-KEY-OpenHPC-3
+gpgkey = https://github.com/openhpc/ohpc/raw/refs/heads/${OhpcMajorVers}.x/components/admin/ohpc-release/SOURCES/RPM-GPG-KEY-OpenHPC-${OhpcMajorVers}
 
-name = OpenHPC-3 - Base
+name = OpenHPC-${OhpcMajorVers} - Base
 
 [OpenHPC-updates]
 async = 1
-baseurl = https://repos.openhpc.community/OpenHPC/${OhpcMajorVers}/${OhpcUpdateDir}/EL_9
+baseurl = https://repos.openhpc.community/OpenHPC/${OhpcMajorVers}/${OhpcUpdateDir}/EL_${OhpcDistroVers}
 gpgcheck = 1
-gpgkey = https://github.com/openhpc/ohpc/raw/refs/heads/${OhpcMajorVers}.x/components/admin/ohpc-release/SOURCES/RPM-GPG-KEY-OpenHPC-3
-name = OpenHPC-3 - Updates
+gpgkey = https://github.com/openhpc/ohpc/raw/refs/heads/${OhpcMajorVers}.x/components/admin/ohpc-release/SOURCES/RPM-GPG-KEY-OpenHPC-${OhpcMajorVers}
+name = OpenHPC-${OhpcMajorVers} - Updates
 
 OHPCREPOEOF
 RUN curl -sSf -o /root/rpmbuild/SOURCES/slurm-${SLURM_VERSION}.tar.bz2 https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
